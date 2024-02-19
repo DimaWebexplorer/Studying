@@ -1,5 +1,8 @@
 'use strict';
 function getLenght (inputValue) {
+    if (inputValue === undefined) {
+        return console.log(0);
+    }
     if (inputValue.hasOwnProperty('length')) {
         return console.log(inputValue.length);
     }
