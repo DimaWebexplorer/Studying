@@ -1,5 +1,5 @@
 'use strict';
-//task -1
+//task-1
 //first method
 const counter1 = {
     count: 1,
@@ -19,7 +19,6 @@ const counter3 = new Counter(1);
 
 //fourth method
 const counter4 = Object.create(counter1);
-counter4.name = 'Valera';
 
 //fifth method
 function createCounter (count) {
