@@ -1,0 +1,84 @@
+1)
+console.log('1'); синхр 1
+setTimeout(() => console.log('2'), 1); макротаска 1 (скорее всего отработает первые, так как 1 мс пройдет за время выполнения микротасок, при 2 и более секунд выполнится может вторым)
+let promiseNew = new Promise((resolve) => {
+console.log('3'); синхр 2
+resolve();
+});
+promiseNew.then(() => console.log('4')); микротаска 1
+setTimeout(() => console.log('5')); макротаска 2
+console.log('6'); синхр 3
+
+Вывод: 1 3 6 2 5 (в столбец, потому что есть перевод строки)
+
+
+2)
+let promiseTree = new Promise((resolve, reject) => {
+resolve("a"); синхр 1 (просто вернет а, но в консоли не будет, так как нет метода cons log)!
+console.log("1"); синх 2
+setTimeout(() => {
+console.log("2"); макротаска 1
+}, 0);
+console.log("3"); синхр 3
+});
+
+Вывод: 1 3 2  (в столбец)
+
+3)
+let promiseTwo = new Promise((resolve, reject) => {
+resolve("a"); синхр 1
+});
+promiseTwo
+.then((res) => {
+return res + "b"; микротаска 1
+})
+.then((res) => {
+return res + "с"; микротаска 2
+})
+.finally((res) => {
+return res + "!!!!!!!"; микротаска 3, но не сработает, так как есть return, в таком случае проброс промиса из микротаски 2 не сработает
+})
+.catch((res) => {
+return res + "d"; макротаска 4, не сработает, так как промис зарезолвен уже, ошибки не будет отлавливать
+})
+.then((res) => {
+console.log(res); макротаска 5 
+});
+
+Вывод: 'abc' (в строку)
+
+4)
+function doSmth() {
+return Promise.resolve("123"); Функция вернет промис и зарезолвит '123'
+}
+doSmth()
+.then(function (a) {
+console.log("1", a);  микротаска 1, в качестве а передастся '123'
+return a; возврат а и дальше подхват следующим then
+})
+.then(function (b) { здесь подхватилась '123'
+console.log("2", b); микротаска 2
+return Promise.reject("321"); промис будет зареджекчен, пойдет отлов ошибок и передастся '321'
+})
+.catch(function (err) { пошёл отлов, в err передалось '321'
+console.log("3", err); микротаска 3
+})
+.then(function (c) { здесь ничего не пробросилось, потому что catch ничего не вернул для передачи
+console.log("4", c); микротаска 4
+return c; вернулся undefined
+});
+
+Вывод: 1 123
+       2 123
+       3 321
+       4 undefined
+
+5)
+console.log("1"); синхр 1
+setTimeout(function () {
+console.log("2"); макротаска 1
+}, 0);
+Promise.resolve().then(() => console.log("3")); микротаска 
+console.log("4"); синхр 2
+
+Вывод: 1 4 3 2 (в столбец)
